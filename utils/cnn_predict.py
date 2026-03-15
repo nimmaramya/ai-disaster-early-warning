@@ -6,7 +6,7 @@ from tensorflow.keras.preprocessing import image
 
 
 model = load_model(
-    "models/final_cnn_3class_model.keras",
+    "models/final_cnn_3class_model.h5",
     compile=False,
     safe_mode=False
 )
