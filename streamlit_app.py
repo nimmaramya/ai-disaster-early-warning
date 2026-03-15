@@ -133,7 +133,6 @@ def predict_disaster_type(weather, cnn, nlp):
     scores = {
         "Flood": (weather*0.5 + nlp*0.3 + cnn*0.2),
         "Cyclone/Storm": (weather*0.6 + cnn*0.3 + nlp*0.1),
-        "Wildfire": (cnn*0.5 + weather*0.2 + nlp*0.3),
         "General Environmental Risk": (weather + cnn + nlp)/3
     }
 

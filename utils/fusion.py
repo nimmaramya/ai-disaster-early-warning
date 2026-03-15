@@ -113,10 +113,22 @@ def disaster_breakdown(weather, cnn, nlp):
     cyclone = (0.4 * weather) + (0.4 * cnn) + (0.2 * nlp)
 
     # landslide influenced by rainfall + terrain
-    landslide = (0.3 * weather) + (0.2 * cnn) + (0.5 * nlp)
-
+   
     return {
         "Flood": flood,
         "Cyclone": cyclone,
-        "Landslide": landslide
+        
     }
+def predict_disaster_type(weather, cnn, nlp):
+
+    breakdown = disaster_breakdown(weather, cnn, nlp)
+
+    disaster = max(breakdown, key=breakdown.get)
+
+    score = breakdown[disaster]
+
+    # threshold for real disaster
+    if score < 0.45:
+        return "Normal"
+
+    return disaster
