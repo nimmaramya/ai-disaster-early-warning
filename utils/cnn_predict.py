@@ -1,6 +1,6 @@
 import numpy as np
-from keras.models import load_model
-from keras.preprocessing import image
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
 
 # Load CNN model
 model = load_model("models/final_cnn_3class_model.keras", compile=False)
