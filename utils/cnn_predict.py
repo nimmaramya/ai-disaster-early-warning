@@ -3,12 +3,14 @@ import numpy as np
 from tensorflow.keras.preprocessing import image
 
 # Load CNN model
+import streamlit as st
 from tensorflow.keras.models import load_model
 
-model = load_model(
-    "models/final_cnn_3class_model.keras",
-    compile=False
-)
+@st.cache_resource
+def load_cnn():
+    return load_model("models/final_cnn_3class_model.keras", compile=False)
+
+model = load_cnn()
 
 
 def predict_cnn_risk(img_path):
