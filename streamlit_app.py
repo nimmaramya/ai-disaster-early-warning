@@ -7,11 +7,15 @@ from PIL import Image
 from geopy.geocoders import Nominatim
 import folium
 from streamlit_folium import st_folium
+import nltk
+nltk.download('vader_lexicon')
 
 from utils.weather_auto import automatic_weather_risk
 from utils.cnn_predict import predict_cnn_risk
 from utils.nlp_predict import predict_text_risk
 from utils.fusion import fuse_risk, risk_level
+from utils.social_intelligence import build_social_text
+
 
 
 st.set_page_config(page_title="AI Disaster Monitoring Console", layout="wide")
@@ -352,14 +356,14 @@ with tab2:
 
         sat_image=temp.name
 
-        auto_text=f"""
-        Heavy rainfall reported near {auto_city} on {auto_date}.
-        Authorities monitoring possible flooding.
-        """
-
+        auto_text, keyword_score = build_social_text(auto_city)
+    
         weather_score=automatic_weather_risk(auto_city)
         cnn_score=predict_cnn_risk(sat_image)
-        nlp_score=predict_text_risk(auto_text)
+        nlp_score = predict_text_risk(auto_text)
+
+# integrate keyword signal
+        nlp_score = min(1.0, nlp_score + keyword_score*0.05)
 
         st.session_state.auto_results={
             "weather":weather_score,

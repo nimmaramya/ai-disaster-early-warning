@@ -1,12 +1,12 @@
 streamlit
 numpy
 pandas
-tensorflow==2.15.0
-torch
-transformers
+tensorflow-cpu==2.15.0
 scikit-learn
 geopy
 plotly
 folium
 streamlit-folium
 joblib
+feedparser
+nltk

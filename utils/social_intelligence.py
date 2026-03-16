@@ -33,7 +33,7 @@ def fetch_news(city):
 
     headlines = []
 
-    for entry in feed.entries[:5]:
+    for entry in feed.entries[:10]:
         headlines.append(entry.title)
 
     return headlines

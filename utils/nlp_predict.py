@@ -1,55 +1,48 @@
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import re
+from nltk.sentiment import SentimentIntensityAnalyzer
 
-model_name = "cardiffnlp/twitter-roberta-base-sentiment-latest"
+# initialize sentiment analyzer
+sia = SentimentIntensityAnalyzer()
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSequenceClassification.from_pretrained(model_name)
+DISASTER_KEYWORDS = [
+    "flood","flooding",
+    "heavy rain","heavy rainfall",
+    "cyclone","storm",
+    "overflow","waterlogging",
+    "dam break","landslide",
+    "evacuation","rescue","damage"
+]
 
-model.eval()
+def keyword_boost(text):
+    score = 0
+    text = text.lower()
+
+    for word in DISASTER_KEYWORDS:
+        if word in text:
+            score += 0.12
+
+    return min(score,0.6)
+
+
+def sentiment_score(text):
+    s = sia.polarity_scores(text)["compound"]
+
+    # convert sentiment to disaster risk
+    if s < -0.5:
+        return 0.7
+    elif s < -0.2:
+        return 0.5
+    elif s < 0:
+        return 0.3
+    else:
+        return 0.1
 
 
 def predict_text_risk(text):
 
-    inputs = tokenizer(
-        text,
-        return_tensors="pt",
-        truncation=True,
-        padding=True,
-        max_length=128
-    )
+    base = sentiment_score(text)
+    boost = keyword_boost(text)
 
-    with torch.no_grad():
-        outputs = model(**inputs)
+    risk = min(1.0, base + boost)
 
-    logits = outputs.logits
-    probabilities = torch.softmax(logits, dim=1)
-
-    # sentiment model output
-    negative = probabilities[0][0].item()
-    neutral = probabilities[0][1].item()
-    positive = probabilities[0][2].item()
-
-    # disasters correlate strongly with negative sentiment
-    disaster_score = negative
-
-    # boost disaster keywords
-    disaster_keywords = [
-        "flood", "flooding",
-        "heavy rainfall",
-        "cyclone",
-        "storm",
-        "overflow",
-        "waterlogging",
-        "dam break",
-        "landslide"
-    ]
-
-    boost = 0
-    for word in disaster_keywords:
-        if word in text.lower():
-            boost += 0.15
-
-    risk_score = min(1.0, disaster_score + boost)
-
-    return float(risk_score)
+    return float(risk)
